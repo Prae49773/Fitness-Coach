@@ -1,0 +1,135 @@
+export const WORKOUT_QUESTIONS = [
+  {
+    id: 'primary_goal',
+    label: 'What is your primary fitness goal?',
+    type: 'select',
+    options: [
+      { value: 'weight_loss', label: 'Weight loss & body composition' },
+      { value: 'muscle_gain', label: 'Build muscle & strength' },
+      { value: 'endurance', label: 'Improve endurance & stamina' },
+      { value: 'general_health', label: 'General health & longevity' },
+      { value: 'flexibility', label: 'Flexibility & mobility' },
+    ],
+  },
+  {
+    id: 'activity_level',
+    label: 'How would you describe your current activity level?',
+    type: 'select',
+    options: [
+      { value: 'sedentary', label: 'Sedentary (little to no exercise)' },
+      { value: 'light', label: 'Lightly active (1–2 days/week)' },
+      { value: 'moderate', label: 'Moderately active (3–4 days/week)' },
+      { value: 'active', label: 'Very active (5–6 days/week)' },
+      { value: 'athlete', label: 'Athlete / training daily' },
+    ],
+  },
+  {
+    id: 'days_per_week',
+    label: 'How many days per week can you realistically train?',
+    type: 'select',
+    options: [
+      { value: '2', label: '2 days' },
+      { value: '3', label: '3 days' },
+      { value: '4', label: '4 days' },
+      { value: '5', label: '5 days' },
+      { value: '6', label: '6+ days' },
+    ],
+  },
+  {
+    id: 'session_duration',
+    label: 'How long can each workout session be?',
+    type: 'select',
+    options: [
+      { value: '20', label: '20–30 minutes' },
+      { value: '35', label: '30–45 minutes' },
+      { value: '50', label: '45–60 minutes' },
+      { value: '75', label: '60+ minutes' },
+    ],
+  },
+  {
+    id: 'training_type',
+    label: 'Which training style do you prefer?',
+    type: 'select',
+    options: [
+      { value: 'strength', label: 'Strength & resistance' },
+      { value: 'cardio', label: 'Cardio & conditioning' },
+      { value: 'hiit', label: 'HIIT & circuits' },
+      { value: 'yoga', label: 'Yoga & mobility' },
+      { value: 'mixed', label: 'Balanced mix' },
+    ],
+  },
+  {
+    id: 'experience_level',
+    label: 'What is your training experience?',
+    type: 'select',
+    options: [
+      { value: 'beginner', label: 'Beginner (< 6 months)' },
+      { value: 'intermediate', label: 'Intermediate (6 months – 2 years)' },
+      { value: 'advanced', label: 'Advanced (2+ years)' },
+    ],
+  },
+  {
+    id: 'intensity',
+    label: 'What exercise intensity can you sustain? (ACSM zones)',
+    type: 'select',
+    options: [
+      { value: 'light', label: 'Light (can talk easily)' },
+      { value: 'moderate', label: 'Moderate (talk but not sing)' },
+      { value: 'vigorous', label: 'Vigorous (few words at a time)' },
+    ],
+  },
+  {
+    id: 'equipment',
+    label: 'What equipment do you have access to?',
+    type: 'select',
+    options: [
+      { value: 'full_gym', label: 'Full gym' },
+      { value: 'home_dumbbells', label: 'Home dumbbells / bands' },
+      { value: 'bodyweight', label: 'Bodyweight only' },
+      { value: 'outdoor', label: 'Outdoor / running routes' },
+    ],
+  },
+  {
+    id: 'injuries',
+    label: 'Do you have any injuries or limitations?',
+    type: 'select',
+    options: [
+      { value: 'none', label: 'None' },
+      { value: 'knees', label: 'Knee issues' },
+      { value: 'back', label: 'Lower back issues' },
+      { value: 'shoulders', label: 'Shoulder issues' },
+      { value: 'other', label: 'Other / multiple' },
+    ],
+  },
+  {
+    id: 'sleep_quality',
+    label: 'How would you rate your sleep quality?',
+    type: 'select',
+    options: [
+      { value: 'poor', label: 'Poor (< 6 hours or restless)' },
+      { value: 'fair', label: 'Fair (6–7 hours)' },
+      { value: 'good', label: 'Good (7–8 hours)' },
+      { value: 'excellent', label: 'Excellent (8+ hours)' },
+    ],
+  },
+  {
+    id: 'stress_level',
+    label: 'What is your current stress level?',
+    type: 'select',
+    options: [
+      { value: 'low', label: 'Low' },
+      { value: 'moderate', label: 'Moderate' },
+      { value: 'high', label: 'High' },
+    ],
+  },
+  {
+    id: 'consistency',
+    label: 'How consistent have you been with exercise recently?',
+    type: 'select',
+    options: [
+      { value: 'new', label: 'Just starting out' },
+      { value: 'inconsistent', label: 'On and off' },
+      { value: 'regular', label: 'Regular for 3+ months' },
+    ],
+  },
+]

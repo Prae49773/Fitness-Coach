@@ -1,0 +1,15 @@
+-- Venue, challenge targets, meal macros, progress tracking
+ALTER TABLE fitness_classes ADD COLUMN IF NOT EXISTS venue VARCHAR(255);
+ALTER TABLE fitness_classes ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+
+ALTER TABLE challenges ADD COLUMN IF NOT EXISTS venue VARCHAR(255);
+ALTER TABLE challenges ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE challenges ADD COLUMN IF NOT EXISTS target_value INTEGER;
+ALTER TABLE challenges ADD COLUMN IF NOT EXISTS target_unit VARCHAR(50);
+
+ALTER TABLE challenge_participants ADD COLUMN IF NOT EXISTS progress_current INTEGER DEFAULT 0;
+
+ALTER TABLE meal_plans ADD COLUMN IF NOT EXISTS macros JSONB;
+
+ALTER TABLE food_logs ADD COLUMN IF NOT EXISTS meal_plan_id INTEGER REFERENCES meal_plans(id) ON DELETE SET NULL;
+ALTER TABLE food_logs ADD COLUMN IF NOT EXISTS meal_slot VARCHAR(50);
