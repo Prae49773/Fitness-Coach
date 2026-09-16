@@ -1,7 +1,5 @@
-const API_BASE =
-  import.meta.env.PROD && import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL
-    : '/api'
+// Prefer explicit VITE_API_URL when provided (works in dev and prod).
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token')
