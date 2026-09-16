@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import path from 'path'
+import { pathToFileURL } from 'url'
 import { sql, seedFitnessClasses, seedFitnessEvents, seedChallenges, seedMealPlans } from './neon.js'
 
 dotenv.config({ path: path.resolve(process.cwd(), 'env.env') })
@@ -56,6 +57,80 @@ async function runMigration() {
   await sql`ALTER TABLE exercise_logs ADD COLUMN IF NOT EXISTS plan_id INTEGER REFERENCES workout_plans(id) ON DELETE SET NULL`
   await sql`ALTER TABLE exercise_logs ADD COLUMN IF NOT EXISTS day_label VARCHAR(255)`
   await sql`ALTER TABLE exercise_logs ADD COLUMN IF NOT EXISTS notes TEXT`
+
+  // Create exercises and questionnaire tables, and seed with frontend constants
+  await sql`
+    CREATE TABLE IF NOT EXISTS exercises (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(100) UNIQUE NOT NULL,
+      name VARCHAR(255) NOT NULL,
+      met NUMERIC,
+      calories_per_hour INTEGER,
+      details JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS questionnaires (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(100) UNIQUE NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      questions JSONB NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_questionnaire_responses (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      questionnaire_id INTEGER REFERENCES questionnaires(id) ON DELETE CASCADE,
+      answers JSONB NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  try {
+    const exercisesUrl = pathToFileURL(path.resolve(process.cwd(), 'src/data/exercises.js')).href
+    const constantsUrl = pathToFileURL(path.resolve(process.cwd(), 'src/constants/workoutQuestions.js')).href
+    const exercisesModule = await import(exercisesUrl)
+    const constantsModule = await import(constantsUrl)
+    const EXERCISES = exercisesModule.exercises || []
+    const WORKOUT_QUESTIONS = constantsModule.WORKOUT_QUESTIONS || []
+
+    for (const ex of EXERCISES) {
+      const existing = await sql`SELECT id FROM exercises WHERE slug = ${ex.id}`
+      const details = JSON.stringify(ex)
+      if (existing.length > 0) {
+        await sql`
+          UPDATE exercises
+          SET name = ${ex.name}, met = ${ex.met}, calories_per_hour = ${ex.calories_per_hour}, details = ${details}
+          WHERE slug = ${ex.id}
+        `
+      } else {
+        await sql`
+          INSERT INTO exercises (slug, name, met, calories_per_hour, details)
+          VALUES (${ex.id}, ${ex.name}, ${ex.met}, ${ex.calories_per_hour}, ${details})
+        `
+      }
+    }
+
+    // Seed a 10-question workout questionnaire (take first 10 from constants)
+    const seedQuestions = WORKOUT_QUESTIONS.slice(0, 10)
+    const qExisting = await sql`SELECT id FROM questionnaires WHERE slug = 'workout_questionnaire'`
+    if (qExisting.length > 0) {
+      await sql`
+        UPDATE questionnaires SET title = 'Workout Questionnaire', questions = ${JSON.stringify(seedQuestions)} WHERE slug = 'workout_questionnaire'
+      `
+    } else {
+      await sql`
+        INSERT INTO questionnaires (slug, title, questions) VALUES ('workout_questionnaire', 'Workout Questionnaire', ${JSON.stringify(seedQuestions)})
+      `
+    }
+  } catch (err) {
+    console.warn('Seeding exercises/questionnaire failed:', err)
+  }
 
   await sql`ALTER TABLE fitness_classes ADD COLUMN IF NOT EXISTS venue VARCHAR(255)`
   await sql`ALTER TABLE fitness_classes ADD COLUMN IF NOT EXISTS city VARCHAR(100)`
