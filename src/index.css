@@ -219,6 +219,63 @@ select {
   border-color: var(--color-primary-dark);
 }
 
+/* Mobile / touch optimizations */
+@media (max-width: 480px), (pointer: coarse) {
+  .page-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero-landing h1 {
+    font-size: 1.5rem;
+    line-height: 1.12;
+  }
+
+  .hero-landing p {
+    font-size: 0.95rem;
+  }
+
+  /* Reduce transform/hover effects on touch devices to avoid jank */
+  .group-hover img,
+  .group-hover-picture img {
+    transition: none !important;
+    transform: none !important;
+  }
+
+  /* Make modal full-screen and easier to scroll on mobile */
+  .modal-content {
+    border-radius: 1rem;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .modal-content .h-72 {
+    height: 220px;
+  }
+
+  .exercise-modal-inner,
+  .plan-modal-card,
+  .plan-modal-overlay {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Larger tap targets */
+  .ui-button,
+  input,
+  select,
+  textarea {
+    min-height: 3.25rem;
+    touch-action: manipulation;
+  }
+
+  /* Simplify complex grid layouts on small devices */
+  .workout-plan-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
 .ui-button--secondary {
   border: 1px solid var(--color-border);
   background: var(--color-surface);

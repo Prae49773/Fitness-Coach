@@ -64,6 +64,8 @@ export default function ExerciseModal({ exercise, onClose }) {
               src={exercise.image}
               alt={exercise.name}
               className="w-full h-full object-cover object-center"
+              loading="lazy"
+              decoding="async"
             />
           )}
         </div>

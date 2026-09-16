@@ -35,6 +35,8 @@ export default function ClassCard({
           src={fitnessClass.image_url || '/images/classes/morning-yoga.jpg'}
           alt={fitnessClass.name}
           className="class-card-image"
+          loading="lazy"
+          decoding="async"
         />
         <span className="class-card-type">{fitnessClass.type}</span>
         {isEnrolled && <span className="card-status-badge">Booked</span>}

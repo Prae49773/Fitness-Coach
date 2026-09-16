@@ -34,6 +34,8 @@ export default function EventCard({
           src={event.image_url || '/images/events/marathon-training.jpg'}
           alt={event.name}
           className="class-card-image"
+          loading="lazy"
+          decoding="async"
         />
         <span className="class-card-type">{event.type}</span>
         {isEnrolled && <span className="card-status-badge">Registered</span>}

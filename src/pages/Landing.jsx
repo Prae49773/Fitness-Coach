@@ -59,6 +59,8 @@ export default function Landing() {
                       src={exercise.image}
                       alt={exercise.name}
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   <div className="px-6 pt-6 pb-8 lg:px-8 lg:pt-8 lg:pb-10 text-center flex-1 flex flex-col justify-between">

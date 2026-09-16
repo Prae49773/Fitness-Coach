@@ -21,6 +21,8 @@ export default function NutritionPlanCard({
           src={plan.image_url || '/images/nutrition/maintenance-plan.jpg'}
           alt={plan.name}
           className="class-card-image"
+          loading="lazy"
+          decoding="async"
         />
         <span className="class-card-type">{plan.goal}</span>
         {isActive && <span className="card-status-badge">Active</span>}

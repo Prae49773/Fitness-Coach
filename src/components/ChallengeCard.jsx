@@ -61,6 +61,8 @@ export default function ChallengeCard({
           src={challenge.image_url || '/images/challenges/step-challenge.jpg'}
           alt={challenge.name}
           className="class-card-image"
+          loading="lazy"
+          decoding="async"
         />
         <span className="class-card-type">{challenge.type || 'challenge'}</span>
         {isEnrolled && <span className="card-status-badge">Joined</span>}
