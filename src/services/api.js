@@ -55,6 +55,15 @@ export const api = {
     getDashboardStats: () => request('/users/dashboard-stats'),
     getProgress: () => request('/users/progress'),
     addProgress: (data) => request('/users/progress', { method: 'POST', body: JSON.stringify(data) }),
+    getWorkoutProgress: () => request('/users/workout-progress'),
+    addWorkoutProgress: (data) => request('/users/workout-progress', { method: 'POST', body: JSON.stringify(data) }),
+    getWorkoutSchedules: () => request('/users/workout-schedule'),
+    addWorkoutSchedule: (data) => request('/users/workout-schedule', { method: 'POST', body: JSON.stringify(data) }),
+    deleteWorkoutSchedule: (id) => request(`/users/workout-schedule/${id}`, { method: 'DELETE' }),
+    getWorkoutReviews: () => request('/users/workout-reviews'),
+    addWorkoutReview: (data) => request('/users/workout-reviews', { method: 'POST', body: JSON.stringify(data) }),
+    updateWorkoutReview: (id, data) => request(`/users/workout-reviews/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    deleteWorkoutReview: (id) => request(`/users/workout-reviews/${id}`, { method: 'DELETE' }),
   },
   classes: {
     getAll: () => request('/classes'),
@@ -74,11 +83,31 @@ export const api = {
     leave: (id) => request(`/challenges/${id}/join`, { method: 'DELETE' }),
     logProgress: (id, data) => request(`/challenges/${id}/progress`, { method: 'POST', body: JSON.stringify(data) }),
     getMyChallenges: () => request('/challenges/my-challenges'),
+    getLeaderboard: ({ challengeId, ...params } = {}) => {
+      const query = new URLSearchParams(params).toString()
+      const path = challengeId ? `/leaderboards/challenge/${challengeId}${query ? `?${query}` : ''}` : `/leaderboards/challenge/1`
+      return request(path)
+    },
+  },
+  leaderboard: {
+    getGlobal: () => request('/leaderboard/global'),
+    getFriends: () => request('/leaderboard/friends'),
+    follow: (userId) => request(`/users/follow/${userId}`, { method: 'POST' }),
+    unfollow: (userId) => request(`/users/follow/${userId}`, { method: 'DELETE' }),
   },
   workout: {
     getLatest: () => request('/workout/latest'),
     generate: (data) => request('/workout/generate', { method: 'POST', body: JSON.stringify(data) }),
     getHistory: () => request('/workout/history'),
+  },
+  rewards: {
+    getCatalog: () => request('/rewards/catalog'),
+    getMy: () => request('/rewards/my'),
+    redeem: (rewardId) => request('/rewards/redeem', { method: 'POST', body: JSON.stringify({ reward_id: rewardId }) }),
+  },
+  passport: {
+    getPublic: (userId) => request(`/passport/${userId}`),
+    getMine: () => request('/passport'),
   },
   nutrition: {
     getLatest: () => request('/nutrition/latest'),

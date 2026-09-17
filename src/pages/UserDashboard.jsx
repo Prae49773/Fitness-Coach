@@ -17,8 +17,12 @@ import AIPlanCard from '../components/plans/AIPlanCard'
 import WorkoutPlanDisplay from '../components/plans/WorkoutPlanDisplay'
 import PlanQuestionnaireModal from '../components/plans/PlanQuestionnaireModal'
 import UserActivityPanel from '../components/UserActivityPanel'
+import PerformanceInsights from '../components/PerformanceInsights'
 import ActiveMealPlanPanel from '../components/ActiveMealPlanPanel'
 import UserProfilePanel from '../components/UserProfilePanel'
+import WorkoutTrackingPanel from '../components/WorkoutTrackingPanel'
+import LeaderboardPanel from '../components/LeaderboardPanel'
+import RewardsPanel from '../components/RewardsPanel'
 import Toast from '../components/ui/Toast'
 import { mergeProfile, computeBmi, bmiCategory } from '../utils/profile'
 import { WORKOUT_QUESTIONS } from '../constants/workoutQuestions'
@@ -33,6 +37,9 @@ export default function UserDashboard() {
   const [challenges, setChallenges] = useState([])
   const [foodLogs, setFoodLogs] = useState([])
   const [exerciseLogs, setExerciseLogs] = useState([])
+  const [workoutProgress, setWorkoutProgress] = useState([])
+  const [workoutSchedules, setWorkoutSchedules] = useState([])
+  const [workoutReviews, setWorkoutReviews] = useState([])
   const [bookings, setBookings] = useState([])
   const [registrations, setRegistrations] = useState([])
   const [myChallenges, setMyChallenges] = useState([])
@@ -75,6 +82,9 @@ export default function UserDashboard() {
         challengesData,
         foodData,
         exerciseData,
+        workoutProgressData,
+        workoutScheduleData,
+        workoutReviewData,
         bookingsData,
         registrationsData,
         myChallengesData,
@@ -90,6 +100,9 @@ export default function UserDashboard() {
         safe(api.challenges.getAll(), []),
         safe(api.users.getFoodLogs(), []),
         safe(api.users.getExerciseLogs(), []),
+        safe(api.users.getWorkoutProgress(), []),
+        safe(api.users.getWorkoutSchedules(), []),
+        safe(api.users.getWorkoutReviews(), []),
         safe(api.classes.getMyBookings(), []),
         safe(api.events.getMyRegistrations(), []),
         safe(api.challenges.getMyChallenges(), []),
@@ -109,6 +122,9 @@ export default function UserDashboard() {
       setChallenges(challengesData)
       setFoodLogs(foodData)
       setExerciseLogs(exerciseData)
+      setWorkoutProgress(workoutProgressData)
+      setWorkoutSchedules(workoutScheduleData)
+      setWorkoutReviews(workoutReviewData)
       setBookings(bookingsData)
       setRegistrations(registrationsData)
       setMyChallenges(myChallengesData)
@@ -287,6 +303,66 @@ export default function UserDashboard() {
     }
   }
 
+  const handleAddWorkoutProgress = async (data) => {
+    try {
+      await api.users.addWorkoutProgress(data)
+      await loadData()
+      setToast({ type: 'success', message: 'Workout progress saved' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
+  const handleAddWorkoutSchedule = async (data) => {
+    try {
+      await api.users.addWorkoutSchedule(data)
+      await loadData()
+      setToast({ type: 'success', message: 'Workout schedule saved' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
+  const handleDeleteWorkoutSchedule = async (id) => {
+    try {
+      await api.users.deleteWorkoutSchedule(id)
+      await loadData()
+      setToast({ type: 'success', message: 'Schedule removed' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
+  const handleAddWorkoutReview = async (data) => {
+    try {
+      await api.users.addWorkoutReview(data)
+      await loadData()
+      setToast({ type: 'success', message: 'Review added' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
+  const handleUpdateWorkoutReview = async (id, data) => {
+    try {
+      await api.users.updateWorkoutReview(id, data)
+      await loadData()
+      setToast({ type: 'success', message: 'Review updated' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
+  const handleDeleteWorkoutReview = async (id) => {
+    try {
+      await api.users.deleteWorkoutReview(id)
+      await loadData()
+      setToast({ type: 'success', message: 'Review deleted' })
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    }
+  }
+
   const profile = mergeProfile(user, userProfile, dashboardStats?.profile)
 
   const handleSaveProfile = async ({ weight, height, age }) => {
@@ -402,7 +478,19 @@ export default function UserDashboard() {
             </div>
 
             <div className="dashboard-section">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="dashboard-card card-content">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+                <PerformanceInsights
+                  workouts={exerciseLogs}
+                  onStartQuick={() => {
+                    setWorkoutModalOpen(true)
+                    setToast({ type: 'info', message: 'Opening quick 20-minute workout builder' })
+                  }}
+                />
+              </motion.div>
+            </div>
+
+            <div className="dashboard-section">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="dashboard-card card-content">
                 <h3 className="dashboard-card-title">Calories Burned</h3>
                 <ResponsiveContainer width="100%" height={280}>
                   <LineChart data={caloriesChartData}>
@@ -568,6 +656,18 @@ export default function UserDashboard() {
                 />
               ))}
             </div>
+            <div className="dashboard-section">
+              <div className="dashboard-grid dashboard-grid--2">
+                <LeaderboardPanel />
+                <RewardsPanel />
+              </div>
+            </div>
+
+            <div className="dashboard-section">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <PerformanceInsights workouts={exerciseLogs} />
+              </motion.div>
+            </div>
             {myChallenges.length > 0 && (
               <div className="dashboard-section" style={{ marginTop: '3rem' }}>
                 <h2 className="dashboard-section-title">My Challenges</h2>
@@ -655,6 +755,19 @@ export default function UserDashboard() {
         {activeTab === 'history' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <WorkoutHistory workouts={exerciseLogs} />
+            <div className="dashboard-section">
+              <WorkoutTrackingPanel
+                progress={workoutProgress}
+                schedules={workoutSchedules}
+                reviews={workoutReviews}
+                onAddProgress={handleAddWorkoutProgress}
+                onAddSchedule={handleAddWorkoutSchedule}
+                onDeleteSchedule={handleDeleteWorkoutSchedule}
+                onAddReview={handleAddWorkoutReview}
+                onUpdateReview={handleUpdateWorkoutReview}
+                onDeleteReview={handleDeleteWorkoutReview}
+              />
+            </div>
           </motion.div>
         )}
 

@@ -213,4 +213,171 @@ router.post('/progress', authMiddleware, async (req, res) => {
   }
 })
 
+router.get('/workout-progress', authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      SELECT *
+      FROM workout_progress
+      WHERE user_id = ${req.user.id}
+      ORDER BY recorded_on DESC, created_at DESC
+    `
+    res.json(result)
+  } catch (error) {
+    console.error('Get workout progress error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.post('/workout-progress', authMiddleware, async (req, res) => {
+  try {
+    const { exercise_name, category, sets, reps, weight_kg, duration_minutes, calories_burned, notes, recorded_on } = req.body
+    const result = await sql`
+      INSERT INTO workout_progress (
+        user_id, exercise_name, category, sets, reps, weight_kg, duration_minutes, calories_burned, notes, recorded_on
+      )
+      VALUES (
+        ${req.user.id},
+        ${exercise_name},
+        ${category || null},
+        ${sets ?? null},
+        ${reps ?? null},
+        ${weight_kg ?? null},
+        ${duration_minutes ?? null},
+        ${calories_burned ?? null},
+        ${notes || null},
+        ${recorded_on || new Date().toISOString().split('T')[0]}
+      )
+      RETURNING *
+    `
+    res.status(201).json(result[0])
+  } catch (error) {
+    console.error('Add workout progress error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.get('/workout-schedule', authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      SELECT *
+      FROM workout_schedules
+      WHERE user_id = ${req.user.id}
+      ORDER BY created_at DESC
+    `
+    res.json(result)
+  } catch (error) {
+    console.error('Get workout schedule error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.post('/workout-schedule', authMiddleware, async (req, res) => {
+  try {
+    const { day_of_week, time_of_day, workout_name, workout_type, duration_minutes, sets, reps, rest_minutes, notes, is_active } = req.body
+    const result = await sql`
+      INSERT INTO workout_schedules (
+        user_id, day_of_week, time_of_day, workout_name, workout_type, duration_minutes, sets, reps, rest_minutes, notes, is_active
+      )
+      VALUES (
+        ${req.user.id},
+        ${day_of_week},
+        ${time_of_day},
+        ${workout_name},
+        ${workout_type || null},
+        ${duration_minutes ?? null},
+        ${sets ?? null},
+        ${reps ?? null},
+        ${rest_minutes ?? null},
+        ${notes || null},
+        ${is_active ?? true}
+      )
+      RETURNING *
+    `
+    res.status(201).json(result[0])
+  } catch (error) {
+    console.error('Add workout schedule error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.delete('/workout-schedule/:id', authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      DELETE FROM workout_schedules
+      WHERE id = ${req.params.id} AND user_id = ${req.user.id}
+      RETURNING *
+    `
+    if (!result[0]) return res.status(404).json({ error: 'Schedule not found' })
+    res.status(204).send()
+  } catch (error) {
+    console.error('Delete workout schedule error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.get('/workout-reviews', authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      SELECT *
+      FROM workout_reviews
+      WHERE user_id = ${req.user.id}
+      ORDER BY created_at DESC
+    `
+    res.json(result)
+  } catch (error) {
+    console.error('Get workout reviews error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.post('/workout-reviews', authMiddleware, async (req, res) => {
+  try {
+    const { workout_name, rating, comment } = req.body
+    const result = await sql`
+      INSERT INTO workout_reviews (user_id, workout_name, rating, comment)
+      VALUES (${req.user.id}, ${workout_name}, ${rating}, ${comment || null})
+      RETURNING *
+    `
+    res.status(201).json(result[0])
+  } catch (error) {
+    console.error('Add workout review error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.put('/workout-reviews/:id', authMiddleware, async (req, res) => {
+  try {
+    const { workout_name, rating, comment } = req.body
+    const result = await sql`
+      UPDATE workout_reviews
+      SET workout_name = COALESCE(${workout_name ?? null}, workout_name),
+          rating = COALESCE(${rating ?? null}, rating),
+          comment = COALESCE(${comment ?? null}, comment),
+          updated_at = NOW()
+      WHERE id = ${req.params.id} AND user_id = ${req.user.id}
+      RETURNING *
+    `
+    if (!result[0]) return res.status(404).json({ error: 'Review not found' })
+    res.json(result[0])
+  } catch (error) {
+    console.error('Update workout review error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.delete('/workout-reviews/:id', authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      DELETE FROM workout_reviews
+      WHERE id = ${req.params.id} AND user_id = ${req.user.id}
+      RETURNING *
+    `
+    if (!result[0]) return res.status(404).json({ error: 'Review not found' })
+    res.status(204).send()
+  } catch (error) {
+    console.error('Delete workout review error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 export default router

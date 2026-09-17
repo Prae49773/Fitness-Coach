@@ -25,6 +25,8 @@ export async function initDatabase() {
       age INTEGER,
       goal VARCHAR(255),
       exercise_type VARCHAR(50),
+      gender VARCHAR(20),
+      city VARCHAR(100),
       role VARCHAR(20) DEFAULT 'user',
       onboarding_completed BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT NOW(),
@@ -40,6 +42,16 @@ export async function initDatabase() {
   await sql`
     ALTER TABLE users
     ADD COLUMN IF NOT EXISTS exercise_type VARCHAR(50)
+  `
+
+  await sql`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS gender VARCHAR(20)
+  `
+
+  await sql`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS city VARCHAR(100)
   `
 
   await sql`
@@ -294,6 +306,121 @@ export async function initDatabase() {
       bmi DECIMAL(4,2),
       calories_burned INTEGER,
       recorded_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS badges (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(100) UNIQUE NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      image_url VARCHAR(500),
+      seasonal BOOLEAN DEFAULT FALSE,
+      season_name VARCHAR(100),
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_badges (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      badge_id INTEGER REFERENCES badges(id) ON DELETE CASCADE,
+      awarded_at TIMESTAMP DEFAULT NOW(),
+      verified BOOLEAN DEFAULT FALSE
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS rewards_catalog (
+      id SERIAL PRIMARY KEY,
+      slug VARCHAR(100) UNIQUE NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      description TEXT,
+      cost_points INTEGER NOT NULL DEFAULT 0,
+      benefit JSONB,
+      stock INTEGER DEFAULT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_points (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      points INTEGER DEFAULT 0,
+      xp INTEGER DEFAULT 0,
+      level INTEGER DEFAULT 1,
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_transactions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      reward_id INTEGER REFERENCES rewards_catalog(id) ON DELETE SET NULL,
+      points_used INTEGER,
+      status VARCHAR(50) DEFAULT 'pending',
+      details JSONB,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_follows (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      target_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS workout_progress (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      exercise_name VARCHAR(255) NOT NULL,
+      category VARCHAR(100),
+      sets INTEGER,
+      reps INTEGER,
+      weight_kg DECIMAL(6,2),
+      duration_minutes INTEGER,
+      calories_burned INTEGER,
+      notes TEXT,
+      recorded_on DATE DEFAULT CURRENT_DATE,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS workout_schedules (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      day_of_week VARCHAR(20) NOT NULL,
+      time_of_day VARCHAR(20) NOT NULL,
+      workout_name VARCHAR(255) NOT NULL,
+      workout_type VARCHAR(100),
+      duration_minutes INTEGER,
+      sets INTEGER,
+      reps INTEGER,
+      rest_minutes INTEGER,
+      notes TEXT,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS workout_reviews (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      workout_name VARCHAR(255) NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+      comment TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
     )
   `
 
