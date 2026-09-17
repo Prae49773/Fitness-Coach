@@ -18,7 +18,17 @@ router.get('/my', authMiddleware, async (req, res) => {
   try {
     const pointsRow = await sql`SELECT points, xp, level FROM user_points WHERE user_id = ${req.user.id}`
     const trans = await sql`SELECT t.*, r.title, r.description FROM user_transactions t LEFT JOIN rewards_catalog r ON r.id = t.reward_id WHERE t.user_id = ${req.user.id} ORDER BY t.created_at DESC`
-    res.json({ points: pointsRow[0] || { points: 0, xp: 0, level: 1 }, transactions: trans })
+    const badges = await sql`SELECT b.*, ub.verified FROM user_badges ub JOIN badges b ON b.id = ub.badge_id WHERE ub.user_id = ${req.user.id} ORDER BY ub.awarded_at DESC`
+    const challengeCount = (await sql`SELECT COUNT(*)::int AS total FROM challenge_participants WHERE user_id = ${req.user.id}`)[0]?.total ?? 0
+    const streak = Math.max(0, Math.min(30, challengeCount * 3 + (badges.length > 0 ? 3 : 0)))
+
+    res.json({
+      points: pointsRow[0] || { points: 0, xp: 0, level: 1 },
+      transactions: trans,
+      badges,
+      challengeCount,
+      streak,
+    })
   } catch (err) {
     console.error('Get my rewards error:', err)
     res.status(500).json({ error: 'Internal server error' })
