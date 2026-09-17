@@ -58,7 +58,7 @@ export default function FitnessPassport({ userId }) {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {(data.badges || []).map((b) => (
               <div key={b.id} style={{ textAlign: 'center', minWidth: 72 }}>
-                <img src={b.image_url || '/images/badge-default.png'} alt={b.title} style={{ width: 54, height: 54, display: 'block', margin: '0 auto' }} />
+                <img src={b.image_url || '/images/badge-default.svg'} alt={b.title} style={{ width: 54, height: 54, display: 'block', margin: '0 auto' }} />
                 <div style={{ fontSize: '0.75rem', marginTop: '0.25rem' }}>{b.title}</div>
                 {b.seasonal && <div style={{ fontSize: '0.65rem', color: 'rgba(0,0,0,0.55)' }}>{b.season_name || 'Seasonal badge'}</div>}
               </div>
