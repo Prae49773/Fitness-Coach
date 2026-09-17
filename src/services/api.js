@@ -1,5 +1,5 @@
 // Prefer explicit VITE_API_URL when provided (works in dev and prod).
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const API_BASE = import.meta.env.VITE_API_URL 
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token')
