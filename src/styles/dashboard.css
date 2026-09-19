@@ -132,13 +132,13 @@
 
 @media (min-width: 640px) {
   .dashboard-card {
-    padding: 2.75rem 2.25rem;
+    padding: 2.5rem 2.25rem;
   }
 }
 
 @media (min-width: 1024px) {
   .dashboard-card {
-    padding: 3.25rem 2.75rem;
+    padding: 3rem 2.75rem;
   }
 }
 

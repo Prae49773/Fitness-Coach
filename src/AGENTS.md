@@ -6,7 +6,7 @@ Read root `ai-instructions.md` first.
 
 - React 19, React Router 7, Framer Motion, Recharts
 - Tailwind 4 via `@tailwindcss/vite`
-- Dev proxy: all API calls go to `/api` → `localhost:5000`
+- API base: `/api` (Netlify Function in prod; `@netlify/vite-plugin` in `npm run dev`)
 
 ## Key pages
 

@@ -1,6 +1,6 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { sql } from '../db/neon.js'
 import { authMiddleware } from '../middleware/auth.js'
 import { normalizeUserMetrics } from '../utils/normalizeUser.js'

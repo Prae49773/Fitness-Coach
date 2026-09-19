@@ -9,7 +9,7 @@
   z-index: 1;
   width: 100%;
   max-width: 24rem;
-  padding: 2.75rem 2.25rem;
+  padding: 2.5rem 1.75rem;
   border-radius: 1rem;
   border: 1px solid #000000;
   background: #ffffff;
@@ -18,7 +18,7 @@
 
 @media (min-width: 640px) {
   .auth-glass-card {
-    padding: 3.25rem 2.75rem;
+    padding: 3rem 2.5rem;
   }
 }
 
@@ -82,7 +82,7 @@
   border-radius: 0.625rem;
   border: 1px solid #000000;
   background: #ffffff;
-  padding: 0 1rem;
+  padding: 0.75rem 1.125rem;
   color: #000000;
   font-size: 0.9rem;
   transition: box-shadow 0.2s ease;
@@ -191,10 +191,11 @@
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   border: 1px solid #000000;
   border-radius: 0.625rem;
   background: #000000;
-  padding: 0.75rem 2rem;
+  padding: 0.875rem 1.5rem;
   color: #ffffff;
   font-size: 0.9rem;
   font-weight: 600;
@@ -278,10 +279,11 @@
   min-height: 2.75rem;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   border-radius: 0.625rem;
   border: 1px solid #000000;
   background: #ffffff;
-  padding: 0.75rem 2rem;
+  padding: 0.875rem 1.5rem;
   color: #000000;
   font-size: 0.9rem;
   font-weight: 600;

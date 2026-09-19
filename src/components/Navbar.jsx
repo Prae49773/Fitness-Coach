@@ -1,104 +1,127 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Button from './ui/Button'
-import { DASHBOARD_TABS, getDashboardTabPath, getActiveDashboardTab } from '../constants/dashboardTabs'
+import { DASHBOARD_TABS, getActiveDashboardTab, getDashboardTabPath } from '../constants/dashboardTabs'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
-  const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
-  const activeTab = location.pathname.startsWith('/dashboard')
-    ? getActiveDashboardTab(location.search)
-    : null
+  const [menuOpen, setMenuOpen] = useState(false)
+  const activeTab = getActiveDashboardTab(location.search)
+  const onDashboard = location.pathname === '/dashboard'
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [menuOpen])
+
+  const guestLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/home', label: 'Explore' },
+    { to: getDashboardTabPath('classes'), label: 'Classes' },
+    { to: getDashboardTabPath('events'), label: 'Events' },
+  ]
+
+  const userLinks = DASHBOARD_TABS.map((tab) => ({
+    to: getDashboardTabPath(tab.id),
+    label: tab.label,
+    active: onDashboard && activeTab === tab.id,
+  }))
+
+  const links = user ? userLinks : guestLinks
 
   return (
-    <nav className="bg-white border-b border-black/10 sticky top-0 z-50">
-      <div className="page-container">
-        <div className="flex items-center justify-between h-20 gap-4 w-full">
-          <Link to="/" className="text-2xl font-bold text-text tracking-wide focus-ring rounded-lg shrink-0">
+    <nav className="site-nav">
+      <div className="site-nav-inner">
+        <div className="site-nav-left">
+          <Link to="/" className="site-nav-brand">
             FitAI
           </Link>
 
-          {user && (
-            <div className="hidden lg:flex items-center gap-1 flex-1 min-w-0 justify-center">
-              {DASHBOARD_TABS.map((tab) => (
-                <Link
-                  key={tab.id}
-                  to={getDashboardTabPath(tab.id)}
-                  className={`dashboard-nav-tab focus-ring ${
-                    activeTab === tab.id ? 'dashboard-nav-tab--active' : 'dashboard-nav-tab--inactive'
-                  }`}
-                >
-                  {tab.label}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          <div className="flex items-center gap-3 shrink-0">
-            {!user ? (
-              <>
-                <Button to="/login" variant="secondary" size="nav" className="hidden sm:inline-flex">
-                  Login
-                </Button>
-                <Button to="/register" variant="primary" size="nav">
-                  Register
-                </Button>
-              </>
-            ) : (
-              <>
-                <div className="hidden lg:block">
-                  <Button variant="secondary" size="nav" onClick={logout}>
-                    Logout
-                  </Button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setMobileOpen((open) => !open)}
-                  className="lg:hidden min-h-11 min-w-11 inline-flex items-center justify-center rounded-xl border border-black/20 hover:bg-black/5 transition focus-ring"
-                  aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-                  aria-expanded={mobileOpen}
-                >
-                  <span className="text-xl leading-none">{mobileOpen ? '×' : '☰'}</span>
-                </button>
-              </>
-            )}
+          <div className="site-nav-desktop">
+            {links.map((link) => (
+              <Link
+                key={link.to + link.label}
+                to={link.to}
+                className={`site-nav-link${link.active ? ' is-active' : ''}`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
 
-        {user && mobileOpen && (
-          <div className="lg:hidden pb-4 border-t border-black/10 pt-4">
-            <div className="flex flex-wrap gap-2">
-              {DASHBOARD_TABS.map((tab) => (
-                <Link
-                  key={tab.id}
-                  to={getDashboardTabPath(tab.id)}
-                  onClick={() => setMobileOpen(false)}
-                  className={`dashboard-nav-tab--mobile focus-ring ${
-                    activeTab === tab.id
-                      ? 'dashboard-nav-tab--mobile-active'
-                      : 'dashboard-nav-tab--mobile-inactive'
-                  }`}
-                >
-                  {tab.label}
-                </Link>
-              ))}
-            </div>
-            <Button
-              variant="secondary"
-              size="nav"
-              fullWidth
-              className="dashboard-nav-logout-mobile"
-              onClick={() => {
-                setMobileOpen(false)
-                logout()
-              }}
+        <div className="site-nav-right">
+          {!user ? (
+            <>
+              <Button to="/login" variant="secondary" size="nav" className="site-nav-auth-btn">
+                Login
+              </Button>
+              <Button to="/register" variant="primary" size="nav" className="site-nav-auth-btn">
+                Register
+              </Button>
+            </>
+          ) : (
+            <>
+              <span className="site-nav-user">{user.name || user.email}</span>
+              <Button type="button" variant="secondary" size="nav" className="site-nav-auth-btn" onClick={logout}>
+                Logout
+              </Button>
+            </>
+          )}
+
+          <button
+            type="button"
+            className={`site-nav-burger${menuOpen ? ' is-open' : ''}`}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="site-nav-mobile"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+      </div>
+
+      <div id="site-nav-mobile" className={`site-nav-mobile${menuOpen ? ' is-open' : ''}`}>
+        <div className="site-nav-mobile-panel">
+          {links.map((link) => (
+            <Link
+              key={`m-${link.to}-${link.label}`}
+              to={link.to}
+              className={`site-nav-mobile-link${link.active ? ' is-active' : ''}`}
             >
-              Logout
-            </Button>
-          </div>
-        )}
+              {link.label}
+            </Link>
+          ))}
+
+          {!user ? (
+            <div className="site-nav-mobile-actions">
+              <Button to="/login" variant="secondary" size="md" fullWidth>
+                Login
+              </Button>
+              <Button to="/register" variant="primary" size="md" fullWidth>
+                Register
+              </Button>
+            </div>
+          ) : (
+            <div className="site-nav-mobile-actions">
+              <p className="site-nav-mobile-user">{user.name || user.email}</p>
+              <Button type="button" variant="secondary" size="md" fullWidth onClick={logout}>
+                Logout
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   )

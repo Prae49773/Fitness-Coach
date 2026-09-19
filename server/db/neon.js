@@ -431,7 +431,7 @@ export async function initDatabase() {
 
   const userCount = await sql`SELECT COUNT(*) as count FROM users`
   if (parseInt(userCount[0].count) === 0) {
-    const bcrypt = await import('bcrypt')
+    const { default: bcrypt } = await import('bcryptjs')
     const hashedPassword = await bcrypt.hash('admin123', 10)
     await sql`
       INSERT INTO users (email, password, name, role, onboarding_completed) VALUES

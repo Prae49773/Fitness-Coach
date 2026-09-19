@@ -22,7 +22,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "@tailwindcss/vite": "^4.3.2",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "concurrently": "^9.2.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -33,9 +33,12 @@
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
+    "serverless-http": "^4.0.0",
     "tailwindcss": "^4.3.2"
   },
   "devDependencies": {
+    "@netlify/functions": "^6.0.0",
+    "@netlify/vite-plugin": "^3.0.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",

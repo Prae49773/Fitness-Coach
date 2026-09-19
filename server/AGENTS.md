@@ -7,7 +7,7 @@ Read root `ai-instructions.md` first.
 - **Express 4** ESM (`"type": "module"`)
 - **Neon serverless** Postgres via `@neondatabase/serverless`
 - **JWT** auth in `server/middleware/auth.js`
-- Entry: `server/index.js` on port `5000` (or `process.env.PORT`)
+- Entry: `server/app.js` (Express export); `server/index.js` listens on `5000` for optional standalone; production via `netlify/functions/api.js`
 
 ## Env loading
 
@@ -21,7 +21,7 @@ Connection string priority: `NEON_DB` → `DATABASE_URL` → `VITE_NEON_DATABASE
 ## Adding a route
 
 1. Create or extend `server/routes/*.js`
-2. Mount in `server/index.js` under `/api/...`
+2. Mount in `server/app.js` under `/api/...`
 3. Add matching method in `src/services/api.js`
 4. Use `authMiddleware` for mutations; `optionalAuthMiddleware` for catalog lists that need `is_*` flags
 

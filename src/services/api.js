@@ -1,5 +1,5 @@
-// Prefer explicit VITE_API_URL when provided (works in dev and prod).
-const API_BASE = import.meta.env.VITE_API_URL 
+// Same-origin /api on Netlify; override with VITE_API_URL only if needed.
+const API_BASE = import.meta.env.VITE_API_URL || '/api' 
 
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token')

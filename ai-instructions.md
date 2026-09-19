@@ -8,7 +8,7 @@
 
 **Venue (canonical):** All in-person activity is at **Central Rama 2 Gym, Bangkok** — see `src/constants/venue.js` and seeded DB rows.
 
-**Deployment target:** Netlify (static SPA). The Express API must be hosted separately or run locally; set `VITE_API_URL` for production.
+**Deployment target:** Netlify (static SPA + Express API as a Netlify Function at `/api/*`). Same-origin API — no separate backend host and no ngrok. On Functions, DB warm-up is a cheap `SELECT 1` only; run `npm run db:migrate` for schema/seeds.
 
 ---
 
@@ -17,27 +17,29 @@
 ```bash
 npm install
 npm run db:migrate          # applies schema + re-seeds catalog data
-npm run dev                 # Vite + auto-spawned API on port 5000
+npm run dev                 # Vite + Netlify Functions via @netlify/vite-plugin (/api)
 ```
 
 **Verify backend:**
 
 ```bash
-curl http://localhost:5000/api/health
-# Expect: { "ok": true, "version": "3", "features": [...] }
+curl http://localhost:5173/api/health
+# Expect: { "ok": true, "version": "5", "features": [...] }
 ```
 
-**Separate API only:**
+**Standalone Express (optional):**
 
 ```bash
-npm run server
+npm run server              # http://localhost:5000/api/health
 ```
 
 **Env files:** Dotenv loads `env.env` then `.env`. Required:
 
-- `NEON_DB` or `DATABASE_URL` or `VITE_NEON_DATABASE_URL` — Postgres connection
-- `JWT_SECRET` — auth tokens
-- `VITE_API_URL` — production API base (e.g. `https://your-api.example.com/api`)
+- `NEON_DB` or `DATABASE_URL` — Postgres connection (Netlify site env for production)
+- `JWT_SECRET` — auth tokens (Netlify site env for production)
+- `VITE_API_URL` — optional; defaults to `/api` (same-origin). Do **not** set to ngrok or an external host unless intentional.
+
+**Netlify site environment (dashboard / CLI):** set `NEON_DB` (or `DATABASE_URL`) and `JWT_SECRET`. Clear any stale `VITE_API_URL` pointing at ngrok. Never put DB/JWT in `VITE_*` (those are baked into client JS).
 
 Never commit secrets. Do not paste credentials into this file or commits.
 
@@ -48,22 +50,25 @@ Never commit secrets. Do not paste credentials into this file or commits.
 ```
 Prae/
 ├── ai-instructions.md      # This file — project handoff for AI agents
+├── netlify.toml            # Build, /api → Function rewrite, SPA fallback
+├── netlify/functions/api.js  # serverless-http wrapper around Express
 ├── src/                    # React 19 + Vite + Tailwind 4
 │   ├── pages/              # Login, Register, Onboarding, UserDashboard, AdminDashboard
 │   ├── components/         # Cards, plans, FoodLog, UserActivityPanel, ui/*
-│   ├── services/api.js     # All frontend API calls (/api proxy in dev)
+│   ├── services/api.js     # Frontend API client (default base `/api`)
 │   ├── contexts/AuthContext.jsx
 │   ├── constants/          # dashboardTabs, workoutQuestions, nutritionQuestions, venue
 │   ├── styles/             # dashboard.css, auth-glass.css; global buttons in index.css
 │   └── utils/              # capacity.js, meals.js
 ├── server/
-│   ├── index.js            # Express app, mounts /api/*
+│   ├── app.js              # Express app (exported for Functions + local server)
+│   ├── index.js            # Local listen on PORT (optional)
 │   ├── routes/             # auth, users, classes, events, challenges, workout, nutrition, admin
 │   ├── services/           # workoutPlanGenerator.js, nutritionPlanGenerator.js
 │   ├── db/neon.js          # Schema init + seed data (single source of truth for seeds)
 │   └── db/migrations/      # SQL reference; run-migration.js applies changes
 ├── public/images/          # classes/, events/, challenges/, nutrition/
-└── vite.config.js          # Proxies /api → :5000; spawns server/index.js on dev
+└── vite.config.js          # @netlify/vite-plugin for local Functions
 ```
 
 **Auth:** JWT in `localStorage` (`token`, `user`). `authMiddleware` on protected routes. `AuthContext.updateUser()` merges profile patches.
@@ -188,10 +193,11 @@ Base: `/api` — see `src/services/api.js` for client wrappers.
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| API 404 / buttons do nothing | Stale process on port 5000 or API not running | Stop terminals, `npm run dev` (predev kills port 5000) |
-| Empty classes/events/challenges | Backend down or old server without routes | Check `GET /api/health` version is `3` |
+| API 404 / buttons do nothing | Function/API not loading | Check `GET /api/health`; restart `npm run dev` |
+| Empty classes/events/challenges | Backend down or old server without routes | Check `GET /api/health` version is `5` |
 | Images broken | Missing files under `public/images/` | Re-run migrate/seeds; paths like `/images/classes/morning-yoga.jpg` |
-| Production API fails | Netlify is static-only | Deploy Express separately; set `VITE_API_URL` |
+| Production register CORS / ngrok | Stale `VITE_API_URL` | Clear Netlify `VITE_API_URL` (use default `/api`); redeploy |
+| Production API 500 | Missing Netlify env | Set `NEON_DB` + `JWT_SECRET` on the site |
 | Workout days missing | Old plan without `schedule` | `npm run db:backfill-workouts` or retake questionnaire |
 
 ---
@@ -200,7 +206,7 @@ Base: `/api` — see `src/services/api.js` for client wrappers.
 
 ### High value
 
-1. **Hosted API** — Railway/Render/Fly.io for `server/`; wire Netlify `VITE_API_URL`
+1. **Observability** — Netlify Function logs for `/api` errors; keep Neon schema migrations documented
 2. **Challenge progress persistence UI** — already API-backed; could add daily history table
 3. **Weight progress** — auto-write `progress_metrics` on profile update or workout log
 4. **Admin dashboard** — wire `server/routes/admin.js` to real stats
