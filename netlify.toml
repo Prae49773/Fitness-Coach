@@ -4,6 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  NEON_DB = "postgresql://neondb_owner:npg_MbWTa23JFAHE@ep-quiet-resonance-aos5g854-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+  DATABASE_URL = "postgresql://neondb_owner:npg_MbWTa23JFAHE@ep-quiet-resonance-aos5g854-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+  JWT_SECRET = "your-jwt-secret-key-change-in-productions"
 
 [functions]
   directory = "netlify/functions"

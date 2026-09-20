@@ -15,8 +15,14 @@ import passportRoutes from './routes/passport.js'
 import adminRoutes from './routes/admin.js'
 import { initDatabase, sql } from './db/neon.js'
 
-dotenv.config({ path: path.resolve(process.cwd(), 'env.env') })
-dotenv.config()
+if (!process.env.NEON_DB && !process.env.DATABASE_URL && !process.env.VITE_NEON_DATABASE_URL) {
+  const cwd = process.cwd()
+  dotenv.config({ path: path.resolve(cwd, 'env.env') })
+  dotenv.config({ path: path.resolve(cwd, '.env') })
+  dotenv.config({ path: path.resolve(cwd, '../.env') })
+  dotenv.config({ path: path.resolve(cwd, '../env.env') })
+  dotenv.config()
+}
 
 const app = express()
 const isServerless = Boolean(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME)

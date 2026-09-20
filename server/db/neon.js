@@ -2,8 +2,14 @@ import dotenv from 'dotenv'
 import path from 'path'
 import { neon } from '@neondatabase/serverless'
 
-dotenv.config({ path: path.resolve(process.cwd(), 'env.env') })
-dotenv.config()
+if (!process.env.NEON_DB && !process.env.DATABASE_URL && !process.env.VITE_NEON_DATABASE_URL) {
+  const cwd = process.cwd()
+  dotenv.config({ path: path.resolve(cwd, 'env.env') })
+  dotenv.config({ path: path.resolve(cwd, '.env') })
+  dotenv.config({ path: path.resolve(cwd, '../.env') })
+  dotenv.config({ path: path.resolve(cwd, '../env.env') })
+  dotenv.config()
+}
 
 const connectionString =
   process.env.NEON_DB ||
