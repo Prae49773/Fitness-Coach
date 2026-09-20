@@ -11,7 +11,7 @@
   },
   "scripts": {
     "predev": "node scripts/kill-port.mjs",
-    "dev": "vite",
+    "dev": "concurrently \"npm run server\" \"vite\"",
     "server": "node server/index.js",
     "db:migrate": "node server/db/run-migration.js",
     "db:backfill-workouts": "node server/db/backfill-workout-schedules.js",
