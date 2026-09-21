@@ -14,9 +14,10 @@ if (!process.env.NEON_DB && !process.env.DATABASE_URL && !process.env.VITE_NEON_
 const connectionString =
   process.env.NEON_DB ||
   process.env.DATABASE_URL ||
-  process.env.VITE_NEON_DATABASE_URL
+  process.env.VITE_NEON_DATABASE_URL ||
+  'postgresql://neondb_owner:npg_MbWTa23JFAHE@ep-quiet-resonance-aos5g854-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 
-export const sql = connectionString ? neon(connectionString) : neon()
+export const sql = neon(connectionString)
 
 export async function initDatabase() {
   // Create users table
